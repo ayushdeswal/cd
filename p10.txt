@@ -1,0 +1,101 @@
+A program in YACC to evaluate an expression (simple calculator program for
+addition and subtraction, multiplication, division).
+
+==============================================================================
+CODE  (p10.y)
+==============================================================================
+
+%{
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#define YYSTYPE double
+int yylex(void);
+void yyerror(const char *s);
+%}
+%token NUM
+%left '+' '-'
+%left '*' '/'
+%right UMINUS
+%%
+input : /* empty */
+      | input line
+      ;
+line  : '\n'
+      | E '\n'          { printf("Result = %g\n", $1); }
+      | error '\n'      { yyerrok; }
+      ;
+E     : E '+' E         { $$ = $1 + $3; }
+      | E '-' E         { $$ = $1 - $3; }
+      | E '*' E         { $$ = $1 * $3; }
+      | E '/' E         {
+                            if ($3 == 0) {
+                                printf("Error: division by zero\n");
+                                YYERROR;
+                            }
+                            $$ = $1 / $3;
+                        }
+      | '(' E ')'       { $$ = $2; }
+      | '-' E %prec UMINUS   { $$ = -$2; }
+      | NUM             { $$ = $1; }
+      ;
+%%
+int yylex(void)
+{
+    int c, i = 0;
+    char buf[64];
+    while ((c = getchar()) == ' ' || c == '\t');
+    if (isdigit(c) || c == '.') {
+        while (isdigit(c) || c == '.') {
+            if (i < 63) buf[i++] = c;
+            c = getchar();
+        }
+        buf[i] = '\0';
+        ungetc(c, stdin);
+        yylval = atof(buf);
+        return NUM;
+    }
+    if (c == EOF) return 0;
+    return c;
+}
+void yyerror(const char *s) { printf("Error: invalid expression\n"); }
+int main()
+{
+    printf("Enter expressions, one per line (Ctrl+D to quit):\n");
+    yyparse();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+bison -y p10.y
+gcc y.tab.c -o p10
+./p10
+
+(If your lab uses the classic yacc tool, use `yacc` in place of `bison -y`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p10
+Enter expressions, one per line (Ctrl+D to quit):
+2+3
+Result = 5
+10-4*2
+Result = 2
+(1+2)*(3+4)
+Result = 21
+8/2/2
+Result = 2
+-5+2
+Result = -3
+1.5*4
+Result = 6
+7/0
+Error: division by zero
+2+*3
+Error: invalid expression
+^D (press Ctrl+D to quit)

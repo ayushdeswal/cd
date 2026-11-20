@@ -1,0 +1,41 @@
+Write a Lex program that implements the Caesar cipher: it replaces every
+letter with the one three letters after it in alphabetical order, wrapping
+around at Z. e.g. a is replaced by d, b by e, and so on z by c.
+
+==============================================================================
+CODE  (p3.l)
+==============================================================================
+
+%{
+#include <stdio.h>
+%}
+%%
+[a-wA-W]    { printf("%c", yytext[0] + 3); }
+[x-zX-Z]    { printf("%c", yytext[0] - 23); }
+.|\n        { ECHO; }
+%%
+int yywrap(void) { return 1; }
+int main()
+{
+    yylex();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+flex p3.l
+gcc lex.yy.c -o p3
+./p3
+
+(If your lab uses the classic lex tool, use `lex` in place of `flex`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p3
+abc xyz XYZ Hello, World!
+def abc ABC Khoor, Zruog!
+^D (press Ctrl+D to end the input)

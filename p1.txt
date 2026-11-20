@@ -1,0 +1,55 @@
+Write a Lex program to count the number of lines and characters in the input
+file.
+
+==============================================================================
+CODE  (p1.l)
+==============================================================================
+
+%{
+#include <stdio.h>
+int lines = 0, chars = 0;
+%}
+%%
+\n      { lines++; chars++; }
+.       { chars++; }
+%%
+int yywrap(void) { return 1; }
+int main(int argc, char *argv[])
+{
+    if (argc > 1) {
+        yyin = fopen(argv[1], "r");
+        if (yyin == NULL) {
+            printf("Cannot open file %s\n", argv[1]);
+            return 1;
+        }
+    }
+    yylex();
+    printf("Number of lines      = %d\n", lines);
+    printf("Number of characters = %d\n", chars);
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+flex p1.l
+gcc lex.yy.c -o p1
+./p1 sample.txt
+
+(If your lab uses the classic lex tool, use `lex` in place of `flex`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+Input file (sample.txt):
+----------------------------------------
+Hello World
+Compiler Design
+Lex Program
+----------------------------------------
+
+$ ./p1 sample.txt
+Number of lines      = 3
+Number of characters = 40

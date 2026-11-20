@@ -1,0 +1,82 @@
+Write a YACC program to find the validity of a given expression (for operators
++ - * and /).
+
+==============================================================================
+CODE  (p9a.y)
+==============================================================================
+
+%{
+#include <stdio.h>
+#include <ctype.h>
+int yylex(void);
+void yyerror(const char *s);
+%}
+%token NUM ID
+%left '+' '-'
+%left '*' '/'
+%%
+S : E '\n'      { printf("Valid expression\n"); }
+  ;
+E : E '+' E
+  | E '-' E
+  | E '*' E
+  | E '/' E
+  | '(' E ')'
+  | NUM
+  | ID
+  ;
+%%
+int yylex(void)
+{
+    int c;
+    while ((c = getchar()) == ' ' || c == '\t');
+    if (isdigit(c)) {
+        while (isdigit(c = getchar()));
+        ungetc(c, stdin);
+        return NUM;
+    }
+    if (isalpha(c) || c == '_') {
+        while (isalnum(c = getchar()) || c == '_');
+        ungetc(c, stdin);
+        return ID;
+    }
+    if (c == EOF) return 0;
+    return c;
+}
+void yyerror(const char *s) { printf("Invalid expression\n"); }
+int main()
+{
+    printf("Enter an expression: ");
+    yyparse();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+bison -y p9a.y
+gcc y.tab.c -o p9a
+./p9a
+
+(If your lab uses the classic yacc tool, use `yacc` in place of `bison -y`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p9a
+Enter an expression: a+b*3
+Valid expression
+
+$ ./p9a
+Enter an expression: (a+b)*c
+Valid expression
+
+$ ./p9a
+Enter an expression: a+*b
+Invalid expression
+
+$ ./p9a
+Enter an expression: (a+b
+Invalid expression

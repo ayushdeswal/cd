@@ -1,0 +1,54 @@
+Write a Lex specification program that generates a C program which takes a
+string "abcd" and prints the following output:
+
+abcd
+abc
+ab
+a
+
+==============================================================================
+CODE  (p7.l)
+==============================================================================
+
+%{
+#include <stdio.h>
+%}
+%%
+[a-zA-Z]+   {
+                int i, j;
+                for (i = yyleng; i > 0; i--) {
+                    for (j = 0; j < i; j++)
+                        putchar(yytext[j]);
+                    putchar('\n');
+                }
+            }
+.|\n        { }
+%%
+int yywrap(void) { return 1; }
+int main()
+{
+    printf("Enter a string: ");
+    yylex();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+flex p7.l
+gcc lex.yy.c -o p7
+./p7
+
+(If your lab uses the classic lex tool, use `lex` in place of `flex`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p7
+Enter a string: abcd
+abcd
+abc
+ab
+a

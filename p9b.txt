@@ -1,0 +1,66 @@
+A program in YACC which recognizes a valid variable which starts with letter
+followed by a digit. The letter should be in lowercase only.
+
+==============================================================================
+CODE  (p9b.y)
+==============================================================================
+
+%{
+#include <stdio.h>
+#include <ctype.h>
+int yylex(void);
+void yyerror(const char *s);
+%}
+%token LETTER DIGIT
+%%
+S      : LETTER Digits '\n'     { printf("Valid variable\n"); }
+       ;
+Digits : Digits DIGIT
+       | DIGIT
+       ;
+%%
+int yylex(void)
+{
+    int c = getchar();
+    if (c >= 'a' && c <= 'z') return LETTER;
+    if (c >= '0' && c <= '9') return DIGIT;
+    if (c == EOF) return 0;
+    return c;
+}
+void yyerror(const char *s) { printf("Invalid variable\n"); }
+int main()
+{
+    printf("Enter a variable: ");
+    yyparse();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+bison -y p9b.y
+gcc y.tab.c -o p9b
+./p9b
+
+(If your lab uses the classic yacc tool, use `yacc` in place of `bison -y`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p9b
+Enter a variable: a1
+Valid variable
+
+$ ./p9b
+Enter a variable: a12
+Valid variable
+
+$ ./p9b
+Enter a variable: A1
+Invalid variable
+
+$ ./p9b
+Enter a variable: 1a
+Invalid variable

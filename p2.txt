@@ -1,0 +1,49 @@
+Lex program to count the number of vowels and consonants in a given string.
+
+==============================================================================
+CODE  (p2.l)
+==============================================================================
+
+%{
+#include <stdio.h>
+int vowels = 0, consonants = 0;
+%}
+%%
+[aeiouAEIOU]    { vowels++; }
+[a-zA-Z]        { consonants++; }
+\n              { return 0; }
+.               { }
+%%
+int yywrap(void) { return 1; }
+int main()
+{
+    printf("Enter a string: ");
+    yylex();
+    printf("Number of vowels     = %d\n", vowels);
+    printf("Number of consonants = %d\n", consonants);
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+flex p2.l
+gcc lex.yy.c -o p2
+./p2
+
+(If your lab uses the classic lex tool, use `lex` in place of `flex`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p2
+Enter a string: Hello World
+Number of vowels     = 3
+Number of consonants = 7
+
+$ ./p2
+Enter a string: Compiler Design
+Number of vowels     = 5
+Number of consonants = 9

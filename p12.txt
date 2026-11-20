@@ -1,0 +1,71 @@
+Program in YACC to recognize the language (a^n b, n>=10). (output to say input
+is valid or not)
+
+==============================================================================
+CODE  (p12.y)
+==============================================================================
+
+%{
+#include <stdio.h>
+int yylex(void);
+void yyerror(const char *s);
+%}
+%token A B
+%%
+Start : S '\n'      { printf("Valid string\n"); }
+      ;
+S     : A A A A A A A A A A As B
+      ;
+As    : As A
+      |
+      ;
+%%
+int yylex(void)
+{
+    int c = getchar();
+    if (c == 'a') return A;
+    if (c == 'b') return B;
+    if (c == EOF) return 0;
+    return c;
+}
+void yyerror(const char *s) { printf("Invalid string\n"); }
+int main()
+{
+    printf("Enter a string: ");
+    yyparse();
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+bison -y p12.y
+gcc y.tab.c -o p12
+./p12
+
+(If your lab uses the classic yacc tool, use `yacc` in place of `bison -y`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p12
+Enter a string: aaaaaaaaaab
+Valid string
+
+$ ./p12
+Enter a string: aaaaaaaaaaaaab
+Valid string
+
+$ ./p12
+Enter a string: aaaaaaaaab
+Invalid string
+
+$ ./p12
+Enter a string: aaab
+Invalid string
+
+$ ./p12
+Enter a string: b
+Invalid string

@@ -1,0 +1,54 @@
+Write a Lex program that finds the longest word (defined as a contiguous
+string of upper and lower case letters) in the input.
+
+==============================================================================
+CODE  (p4.l)
+==============================================================================
+
+%{
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+char *longest = NULL;
+int maxlen = 0;
+%}
+%%
+[a-zA-Z]+   {
+                if (yyleng > maxlen) {
+                    maxlen = yyleng;
+                    free(longest);
+                    longest = strdup(yytext);
+                }
+            }
+.|\n        { }
+%%
+int yywrap(void) { return 1; }
+int main()
+{
+    yylex();
+    if (maxlen > 0)
+        printf("Longest word = %s\nLength       = %d\n", longest, maxlen);
+    else
+        printf("No word found in the input\n");
+    return 0;
+}
+
+==============================================================================
+COMMANDS TO COMPILE AND RUN
+==============================================================================
+
+flex p4.l
+gcc lex.yy.c -o p4
+./p4
+
+(If your lab uses the classic lex tool, use `lex` in place of `flex`.)
+
+==============================================================================
+SAMPLE INPUT AND EXPECTED OUTPUT
+==============================================================================
+
+$ ./p4
+the quick brownish fox jumped over the lazy dog
+^D (press Ctrl+D to end the input)
+Longest word = brownish
+Length       = 8
